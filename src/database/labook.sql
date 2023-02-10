@@ -38,9 +38,9 @@ VALUES
     ("002", "Jose", "jose@gmail.com", "jose6080", "user");
 
 INSERT INTO posts (id, creator_id, content, likes, dislikes, updated_at)
-VALUES ("001", "001", "Como acesso esse site?", "4", "1","DATETIME()"),
-("002", "001", "Ola,tudo bem?", "5","2","DATETIME()"),
-("003", "002", "Gostaria de saber informacoes sobre o curso!", "8", "1","DATETIME()");
+VALUES ("001", "001", "Como acesso esse site?", "4", "1",DATETIME()),
+("002", "001", "Ola,tudo bem?", "5","2",DATETIME()),
+("003", "002", "Gostaria de saber informacoes sobre o curso!", "8", "1",DATETIME());
 
 INSERT INTO likes_dislikes(user_id, post_id,like)
 VALUES ("001","002", "1"),
