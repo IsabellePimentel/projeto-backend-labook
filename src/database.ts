@@ -1,6 +1,7 @@
 import { db } from "./database/knex";
-import { TPost } from "./types";
+import { TPost, TSignupOutput, TSignUpRequest,TTokenPayload,TUser } from "./types";
 import { v1, v4 as uuidv4 } from 'uuid';
+import { TokenManager } from "./TokenManager";
 
 export const getPosts = async (): Promise<TPost[]>=> {
     const posts = await db.raw(`SELECT * FROM posts;`)
@@ -32,4 +33,54 @@ export const getPostById = async (id: string) : Promise<TPost> =>{
     const posts = await db.raw(`SELECT * FROM posts WHERE id = "${id}";`)
     return posts?.[0]
 
+}
+
+export const signup = async (input: TSignUpRequest) : Promise<TSignupOutput> =>{
+
+    const { name, email, password } = input
+
+
+    const id = uuidv4();
+    const role = "NORMAL";
+    const createdAt = new Date().toISOString()
+
+    const newUser: TUser = {
+        id,
+        name,
+        email,
+        password,
+        role,
+        createdAt
+     } 
+
+    await inserirUsuario(newUser)
+
+    const tokenPayload: TTokenPayload = {
+        id: id,
+        name: name,
+        role: role
+    }
+
+    const token = new TokenManager().createToken(tokenPayload)
+
+    let mensagem = "Cadastro realizado com sucesso";
+    const output: TSignupOutput = {
+        mensagem,
+        token
+    }
+
+    return output
+}
+
+
+export const inserirUsuario = async (newUser: TUser): Promise<string> => {
+    let id = uuidv4();
+    let zero = 0
+
+    await db.raw(`
+    INSERT INTO users (id, name, email, password, role) 
+    VALUES("${id}", "${newUser.name}", "${newUser.email}", "${newUser.password}", "${newUser.role}");
+        `)
+
+    return id
 }

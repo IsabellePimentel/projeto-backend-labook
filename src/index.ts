@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
-import { createPost, deletePost, getPostById, getPosts, updatePost } from "./database";
+import { createPost, deletePost, getPostById, getPosts, signup, updatePost } from "./database";
 
-import { TPost, TPostRequest } from "./types";
+import { TPost, TPostRequest, TSignUpRequest } from "./types";
 import cors from "cors";
 
 const app = express()
@@ -113,5 +113,39 @@ async function validaRequest(id: string, content: string): Promise<string[]> {
 }
 
 
- 
+
+// signup
+
+app.post("/users/signup", async (req: Request, res: Response) => {
+
+        try {
+            const input: TSignUpRequest = {
+                name: req.body.name,
+                email: req.body.email,
+                password: req.body.password
+            }
+            
+            const output = await signup(input)
+    
+            res.status(201).send(output)
+        } catch (error) {
+            console.log(error)
+    
+            if (req.statusCode === 200) {
+                res.status(500)
+            }
+    
+            if (error instanceof Error) {
+                res.send(error.message)
+            } else {
+                res.send("Erro inesperado")
+            }
+        }
+    }
+)
+
+
+
+
+
 app.listen(3000);
