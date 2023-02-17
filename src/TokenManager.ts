@@ -26,7 +26,12 @@ export class TokenManager {
                 process.env.JWT_KEY as string
             )
 
+
+            console.log(payload)
+
             return payload as TTokenPayload
+
+          
 
         } catch (error) {
             return null
