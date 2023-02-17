@@ -39,3 +39,14 @@ export type TSignupOutput = {
     token: string;
 
 }
+
+export type TLoginRequest = {
+    email: string;
+    password: string;
+}
+
+export type TLoginOutput = {
+    mensagem: string;
+    token: string;
+
+}
