@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-import { TTokenPayload } from './types'
+import { TTokenPayload } from '../types'
 
 require("dotenv").config();
 dotenv.config()
@@ -26,12 +26,7 @@ export class TokenManager {
                 process.env.JWT_KEY as string
             )
 
-
-            console.log(payload)
-
             return payload as TTokenPayload
-
-          
 
         } catch (error) {
             return null

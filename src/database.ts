@@ -1,7 +1,7 @@
 import { db } from "./database/knex";
 import { TLoginOutput, TLoginRequest, TPost, TSignupOutput, TSignUpRequest,TTokenPayload,TUser } from "./types";
 import { v1, v4 as uuidv4 } from 'uuid';
-import { TokenManager } from "./TokenManager";
+import { TokenManager } from "./services/TokenManager";
 
 const bcrypt = require("bcrypt");
 
