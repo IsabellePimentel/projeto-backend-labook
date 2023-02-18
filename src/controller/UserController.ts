@@ -1,10 +1,11 @@
 import { Request, Response } from "express"
-import { login, signup } from "../database"
+import { UserBusiness } from "../business/UserBusiness"
 import { TLoginRequest, TSignUpRequest } from "../types"
 
 
 export class UserController {
     constructor(
+        private userBusiness: UserBusiness
     ) { }
 
     public login = async (req: Request, res: Response) => {
@@ -15,7 +16,7 @@ export class UserController {
                 password: req.body.password
             }
 
-            const output = await login(input)
+            const output = await this.userBusiness.login(input)
 
             res.status(200).send(output)
         } catch (error) {
@@ -43,7 +44,7 @@ export class UserController {
                 password: req.body.password
             }
 
-            const output = await signup(input)
+            const output = await this.userBusiness.signup(input)
 
             res.status(201).send(output)
         } catch (error) {
