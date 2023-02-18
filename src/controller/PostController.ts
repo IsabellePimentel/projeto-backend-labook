@@ -1,14 +1,14 @@
 import { Request, Response } from "express"
-import { validaRequest } from ".."
-import { addDislike, addLike, createPost, deletePost, getPostById, getPosts, getUserById, updatePost } from "../database"
 import { TokenManager } from "../services/TokenManager"
 import { TPostRequest } from "../types"
+import { PostBusiness } from "../business/PostBusiness"
 
 export class PostController {
     constructor(
+        private postBusiness: PostBusiness
     ) { }
 
-    public get = async function (req: Request, res: Response) {
+    public get = async  (req: Request, res: Response) => {
         try {
 
             const token = req.header('authorization')
@@ -25,7 +25,7 @@ export class PostController {
                 throw new Error("token inválido")
             }
 
-            let posts = await getPosts()
+            let posts = await this.postBusiness.getPosts()
             res.status(200).send(posts)
         } catch (error) {
             let erro = error as Error
@@ -52,13 +52,13 @@ export class PostController {
 
             const id = req.params.id
 
-            let post = await getPostById(id)
+            let post = await this.postBusiness.getPostById(id)
             if (!post) {
                 let msg = "Post não existe"
                 console.log(msg)
                 res.status(400).send(msg)
             } else {
-                await deletePost(id)
+                await this.postBusiness.deletePost(id)
                 res.status(200).send()
             }
 
@@ -69,7 +69,7 @@ export class PostController {
         }
     }
 
-    public post = async function (req: Request, res: Response) {
+    public post = async  (req: Request, res: Response) => {
 
         try {
 
@@ -89,12 +89,12 @@ export class PostController {
 
             const { content, creator_id } = req.body as TPostRequest
 
-            let errors = await validaRequest("", content);
+            let errors = await this.validaRequest("", content);
             if (errors?.length > 0) {
                 console.log(errors)
                 res.status(400).send(errors)
             } else {
-                let newPostId = await createPost(content, creator_id)
+                let newPostId = await this.postBusiness.createPost(content, creator_id)
                 res.status(201).send(`Post ${newPostId} criado com sucesso!`)
             }
 
@@ -125,12 +125,12 @@ export class PostController {
             const id = req.params.id
             const newContent = req.body.content as string
 
-            let errors = await validaRequest(id, newContent);
+            let errors = await this.validaRequest(id, newContent);
             if (errors?.length > 0) {
                 console.log(errors)
                 res.status(400).send(errors)
             } else {
-                await updatePost(id, newContent)
+                await this.postBusiness.updatePost(id, newContent)
 
                 res.status(200).send("Post atualizado com sucesso!")
             }
@@ -162,8 +162,8 @@ export class PostController {
             const id = req.params.id
             const like = req.body.like as boolean
 
-            const user = await getUserById(payload.id)
-            const post = await getPostById(id)
+            const user = await this.postBusiness.getUserById(payload.id)
+            const post = await this.postBusiness.getPostById(id)
 
             if (post.creator_id === user.id) {
                 throw new Error('Quem criou o post não pode dar like ou dislike no mesmo.')
@@ -171,10 +171,10 @@ export class PostController {
 
                 if (like) {
                     post.likes = post.likes + 1;
-                    addLike(post.id, post.likes)
+                    this.postBusiness.addLike(post.id, post.likes)
                 } else {
                     post.dislikes = post.dislikes + 1;
-                    addDislike(post.id, post.dislikes)
+                    this.postBusiness.addDislike(post.id, post.dislikes)
                 }
 
                 res.status(200).send("Requisição realizada com sucesso!")
@@ -186,6 +186,25 @@ export class PostController {
             res.status(500).send(erro.message)
         }
 
+    }
+
+
+    public validaRequest = async  (id: string, content: string): Promise<string[]> => {
+
+        let errors: string[] = []
+    
+        if (content === null || content === "") {
+            errors.push("Content não pode ser nulo/vazio.")
+        }
+    
+        if(id !== null && id !== "") {
+            let postExist = await this.postBusiness.getPostById(id)
+            if (!postExist) {
+                errors.push("Post não existe")
+            }
+        }
+    
+        return errors
     }
 
 }
