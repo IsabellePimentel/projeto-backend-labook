@@ -1,6 +1,7 @@
 import { db } from "../database/knex";
+import { PostDTO } from "../dtos/postDTO";
+import { User } from "../model/User";
 import { IdGenerator } from "../services/IdGenerator";
-import { TPost, TUser } from "../types";
 
 const bcrypt = require("bcrypt");
 
@@ -10,7 +11,7 @@ export class PostBusiness {
     ) { }
 
 
-    public getPosts = async (): Promise<TPost[]> => {
+    public getPosts = async (): Promise<PostDTO[]> => {
         const posts = await db.raw(`SELECT * FROM posts;`)
         return posts
     }
@@ -35,14 +36,14 @@ export class PostBusiness {
         await db.raw(`UPDATE posts SET content="${newContent}" WHERE id = "${id}";`)
     }
 
-    public getPostById = async (id: string): Promise<TPost> => {
+    public getPostById = async (id: string): Promise<PostDTO> => {
 
         const posts = await db.raw(`SELECT * FROM posts WHERE id = "${id}";`)
         return posts?.[0]
 
     }
 
-    public getUserById = async (id: string): Promise<TUser> => {
+    public getUserById = async (id: string): Promise<User> => {
 
         const users = await db.raw(`SELECT * FROM users WHERE id = "${id}";`)
         return users?.[0]

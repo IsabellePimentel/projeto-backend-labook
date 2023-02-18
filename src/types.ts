@@ -1,23 +1,4 @@
-export type TPost = {
-    id: string;
-    creator_id: string;
-    content: string;
-    likes: number;
-    dislikes: number;
-    created_at: string;
-    updated_at: string;
-}
 
-export type TPostRequest = {
-    content: string;
-    creator_id: string;
-}
-
-export type TSignUpRequest = {
-    name: string;
-    email: string;
-    password: string;
-}
 
 export type TUser = {
      id: string;
@@ -34,19 +15,7 @@ export type TTokenPayload = {
     role: string;
 }
 
-export type TSignupOutput = {
-    mensagem: string;
-    token: string;
-
-}
-
-export type TLoginRequest = {
-    email: string;
-    password: string;
-}
-
-export type TLoginOutput = {
-    mensagem: string;
-    token: string;
-
+export enum USER_ROLES {
+    NORMAL = "NORMAL",
+    ADMIN = "ADMIN"
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { TokenManager } from "../services/TokenManager"
-import { TPostRequest } from "../types"
 import { PostBusiness } from "../business/PostBusiness"
+import { PostRequestDTO } from "../dtos/postDTO"
 
 export class PostController {
     constructor(
@@ -87,7 +87,7 @@ export class PostController {
                 throw new Error("token inválido")
             }
 
-            const { content, creator_id } = req.body as TPostRequest
+            const { content, creator_id } = req.body as PostRequestDTO
 
             let errors = await this.validaRequest("", content);
             if (errors?.length > 0) {
@@ -165,7 +165,7 @@ export class PostController {
             const user = await this.postBusiness.getUserById(payload.id)
             const post = await this.postBusiness.getPostById(id)
 
-            if (post.creator_id === user.id) {
+            if (post.creator_id === user.getId()) {
                 throw new Error('Quem criou o post não pode dar like ou dislike no mesmo.')
             } else {
 

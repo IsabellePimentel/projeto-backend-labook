@@ -1,7 +1,9 @@
 import { db } from "../database/knex";
-import { TLoginOutput, TLoginRequest, TPost, TSignupOutput, TSignUpRequest, TTokenPayload, TUser } from "../types";
+import {   TTokenPayload, TUser, USER_ROLES } from "../types";
 import { TokenManager } from "../services/TokenManager";
 import { IdGenerator } from "../services/IdGenerator";
+import { LoginInputDTO, LoginOutputDTO, SignupInputDTO, SignupOutputDTO } from "../dtos/userDTO";
+import { User } from "../model/User";
 
 const bcrypt = require("bcrypt");
 
@@ -11,7 +13,7 @@ export class UserBusiness {
         private idGenerator: IdGenerator
     ) { }
 
-    public login = async (input: TLoginRequest): Promise<TLoginOutput> => {
+    public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
         const { email, password } = input
 
         if (typeof email !== "string") {
@@ -43,11 +45,11 @@ export class UserBusiness {
 
         const token = this.tokenManager.createToken(tokenPayload)
 
-        let mensagem = "Login realizado com sucesso"
-        const output: TLoginOutput = {
-            mensagem,
-            token
+        const output: LoginOutputDTO = {             
+            token,
+            mensagem:"Login realizado com sucesso"
         }
+    
 
         return output
     }
@@ -59,23 +61,23 @@ export class UserBusiness {
 
     }
 
-    public signup = async (input: TSignUpRequest): Promise<TSignupOutput> => {
+    public signup = async (input: SignupInputDTO): Promise<SignupOutputDTO> => {
 
         const { name, email, password } = input
 
 
         const id = this.idGenerator.generate()
-        const role = "NORMAL"
+        const role =USER_ROLES.NORMAL
         const createdAt = new Date().toISOString()
 
-        const newUser: TUser = {
+        const newUser = new User(
             id,
             name,
             email,
             password,
             role,
-            createdAt
-        }
+            createdAt)
+        
 
         await this.inserirUsuario(newUser)
 
@@ -87,24 +89,23 @@ export class UserBusiness {
 
         const token = new TokenManager().createToken(tokenPayload)
 
-        let mensagem = "Cadastro realizado com sucesso";
-        const output: TSignupOutput = {
-            mensagem,
+        const output: SignupOutputDTO = {
+            mensagem: "Cadastro realizado com sucesso",
             token
         }
 
         return output
     }
 
-    public inserirUsuario = async (newUser: TUser): Promise<string> => {
+    public inserirUsuario = async (newUser: User): Promise<string> => {
         let id = this.idGenerator.generate();
         let zero = 0
 
-        const hash = bcrypt.hashSync(newUser.password, 5);
+        const hash = bcrypt.hashSync(newUser.getPassword(), 5);
 
         await db.raw(`
     INSERT INTO users (id, name, email, password, role) 
-    VALUES("${id}", "${newUser.name}", "${newUser.email}", "${hash}", "${newUser.role}");
+    VALUES("${id}", "${newUser.getName()}", "${newUser.getEmail()}", "${hash}", "${newUser.getRole()}");
         `)
 
         return id
